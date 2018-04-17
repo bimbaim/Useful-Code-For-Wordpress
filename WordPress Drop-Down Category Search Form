@@ -1,0 +1,13 @@
+
+A useful function you could give to your WordPress search would be to allow your readers to filter the search results by targeting a specific category. This can be achieved by using a simple drop-down containing all of the category titles.
+
+All you have to do is replace the standard WordPress search form (found within the searchform.php) with the snippet below: 
+
+<form role="search" method="get" id="searchform" action="<?php bloginfo('siteurl'); ?>">
+  <div>
+    <label class="screen-reader-text" for="s">Search for:</label>
+    <input type="text" value="" name="s" id="s" /> 
+    in <?php wp_dropdown_categories( 'show_option_all=All Categories' ); ?> 
+    <input type="submit" id="searchsubmit" value="Search" />
+  </div>
+</form>
