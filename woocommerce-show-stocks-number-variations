@@ -1,0 +1,91 @@
+<?php
+
+add_filter( 'woocommerce_get_availability', 'display_variation_availability_count', 10, 2 );
+function display_variation_availability_count( $args, $product ) {
+    // Targeting product variations with stock management enabled
+    if ( $product->managing_stock() && $product->is_type('variation') ) {
+        $args['availability'] = __("Stock: ") . $product->get_stock_quantity();
+        $args['class'] = 'stock-count';
+    }
+    return $args;
+}
+
+//OR
+
+add_filter( 'woocommerce_get_availability_text', 'display_variation_availability_count', 10, 2 );
+function display_variation_availability_count( $availability, $product ) {
+    // Targeting product variations with stock management enabled
+    if ( $product->managing_stock() && $product->is_type('variation') ) {
+        $availability = __("Stock: ") . $product->get_stock_quantity();
+
+    return $availability;
+}
+}
+
+//OR in Dropdown
+
+add_filter( 'woocommerce_variation_option_name', 'customizing_variations_terms_name', 10, 1 );
+function customizing_variations_terms_name( $term_name ){
+	$user = wp_get_current_user();
+    if(is_admin())
+        return $term_name;
+
+    global $product;
+    $second_loop_stoped = false;
+
+    // Get available product variations
+    $product_variations = $product->get_available_variations();
+
+    // Iterating through each available product variation
+    foreach($product_variations as $variation){
+
+        $variation_id = $variation['variation_id'];
+        $variation_obj = new WC_Product_Variation( $variation_id );
+
+        ## WOOCOMMERCE RETRO COMPATIBILITY ##
+        if ( version_compare( WC_VERSION, '3.0', '<' ) ) # BEFORE Version 3 (older)
+        {
+            $stock_status = $variation_obj->stock_status;
+            $stock_qty = intval($variation_obj->stock);
+
+            // The attributes WC slug key and slug value for this variation
+            $attributes_arr = $variation_obj->get_variation_attributes();
+        }
+        else # For newest verions: 3.0+ (and Up)
+        {
+            $stock_status = $variation_obj->get_stock_status();
+            $stock_qty = $variation_obj->get_stock_quantity();
+
+            // The attributes taxonomy key and slug value for this variation
+            $attributes_arr = $variation_obj->get_attributes();
+        }
+
+        if(count($attributes_arr) != 1) // Works only for 1 attribute set in the product
+            return $term_name;
+
+        // Get the terms for this attribute
+        foreach( $attributes_arr as $attr_key => $term_slug){
+            // Get the attribute taxonomy
+            $term_key = str_replace('attribute_', '', $attr_key );
+
+            // get the corresponding term object
+            $term_obj = get_term_by( 'slug', $term_slug, $term_key );
+            if( $term_obj->name == $term_name ){ // If the term name matches we stop the loops
+                $second_loop_stoped = true;
+                break;
+            }
+        }
+        if($second_loop_stoped)
+            break;
+    }
+    
+    if($stock_status === 'instock'){
+			$stock_status = 'Op voorraad';
+		}
+    
+    if( $stock_qty>0 && in_array( 'b2b_account', (array) $user->roles ) || in_array( 'wholesale_customer', (array) $user->roles ))
+        return $term_name .= ' - ' . $stock_status . ' ('.$stock_qty.')';
+    else
+        return $term_name;
+
+}
