@@ -1,0 +1,12 @@
+function add_attribute_to_script_tag($tag, $handle) {
+   # add script handles to the array below
+   $scripts_to_defer = array('wpfrank-ptbw-pinit-js');
+
+   foreach($scripts_to_defer as $defer_script) {
+      if ($defer_script === $handle) {
+         return str_replace(' src', '  async defer data-pin-hover="true" src', $tag);
+      }
+   }
+   return $tag;
+}
+add_filter('script_loader_tag', 'add_attribute_to_script_tag', 10, 2);
