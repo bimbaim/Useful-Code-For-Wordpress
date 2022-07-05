@@ -9,6 +9,14 @@ function newwhello_rewriteRules( $rules ) {
         '(marketing-tips)/page/?([0-9]{1,})/?$'         => 'pagename=$matches[1]&paged=$matches[2]',
         'marketing-tips/(.+?)/page/?([0-9]{1,})/?$'     => 'post_type=post&category_name=$matches[1]&paged=$matches[2]',
         'marketing-tips/(.+?)/([^/]+)(?:/([0-9]+))?/?$' => 'post_type=post&category_name=$matches[1]&name=$matches[2]&page=$matches[3]',
+		
+		'blog/(.+?)/page/?([0-9]{1,})/?$'		=> 'category_name=$matches[1]&paged=$matches[2]',
+		'(blog)/page/?([0-9]{1,})/?$'			=> 'pagename=$matches[1]&paged=$matches[2]',
+		'blog/(.+?)/([^/]+)(?:/([0-9]+))?/?$'	=> 'category_name=$matches[1]&name=$matches[2]&page=$matches[3]',
+
+		'succesverhalen/(.+?)/page/?([0-9]{1,})/?$'		=> 'cat_succesverhalen=$matches[1]&paged=$matches[2]',
+		'(succesverhalen)/page/?([0-9]{1,})/?$'			=> 'pagename=$matches[1]&paged=$matches[2]',
+		// 'media/([^/]+)/([^/]+)(?:/([0-9]+))?/?$'	=> 'cat_media=$matches[1]&name=$matches[2]&page=$matches[3]',
         
 	);
 	return $new_rules + $rules;
